@@ -1,3 +1,6 @@
+import dns from "dns"
+dns.setServers(["8.8.8.8", "8.8.4.4"])
+dns.setDefaultResultOrder("ipv4first")
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
