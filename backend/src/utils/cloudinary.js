@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import multer from 'multer';
 
 cloudinary.config({
@@ -8,14 +7,19 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-    cloudinary,
-    params: {
-        folder: 'comercial-araguaia/products',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-        transformation: [{ width: 800, crop: 'limit' }],
-    },
-});
+export const upload = multer({ storage: multer.memoryStorage() });
 
-export const upload = multer({ storage });
+export function uploadToCloudinary(buffer, mimetype) {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { folder: 'comercial-araguaia/products', transformation: [{ width: 800, crop: 'limit' }] },
+            (error, result) => {
+                if (error) return reject(error);
+                resolve(result.secure_url);
+            }
+        );
+        stream.end(buffer);
+    });
+}
+
 export { cloudinary };
