@@ -1,5 +1,6 @@
 import Product from '../models/Product.js';
 import mongoose from 'mongoose';
+import { cloudinary } from '../../utils/cloudinary.js';
 
 // GET /api/products
 export const getAllProducts = async (req, res) => {
@@ -10,51 +11,36 @@ export const getAllProducts = async (req, res) => {
 
         const filters = { isActive: true };
 
-        // Filtro por categoria
         if (req.query.category) {
             filters.category = req.query.category;
         }
 
-        // Busca por texto
         if (req.query.search) {
             filters.name = { $regex: req.query.search, $options: 'i' };
         }
 
         const total = await Product.countDocuments(filters);
-
         const products = await Product.find(filters)
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 });
 
-        res.status(200).json({
-            page,
-            limit,
-            total,
-            totalPages: Math.ceil(total / limit),
-            products
-        });
+        res.status(200).json({ page, limit, total, totalPages: Math.ceil(total / limit), products });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-
-
 // GET /api/products/:id
 export const getProductById = async (req, res) => {
-
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
         return res.status(400).json({ message: 'ID inválido' });
     }
-
     try {
         const product = await Product.findById(req.params.id);
-
         if (!product || !product.isActive) {
             return res.status(404).json({ message: 'Produto não encontrado' });
         }
-
         res.status(200).json(product);
     } catch (error) {
         res.status(400).json({ message: 'ID inválido' });
@@ -65,10 +51,7 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
     try {
         const { name, category, description } = req.body;
-
-        const imageUrl = req.file
-            ? `/uploads/${req.file.filename}`
-            : null;
+        const imageUrl = req.file ? req.file.path : null;
 
         const product = await Product.create({
             name,
@@ -79,7 +62,7 @@ export const createProduct = async (req, res) => {
 
         res.status(201).json(product);
     } catch (error) {
-        res.status(500).json({ message: "Erro ao criar produto", error });
+        res.status(500).json({ message: 'Erro ao criar produto', error });
     }
 };
 
@@ -88,7 +71,6 @@ export const updateProduct = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
         return res.status(400).json({ message: 'ID inválido' });
     }
-
     try {
         const { name, category, description } = req.body;
 
@@ -99,14 +81,10 @@ export const updateProduct = async (req, res) => {
         };
 
         if (req.file) {
-            updateData.imageUrl = `/uploads/${req.file.filename}`;
+            updateData.imageUrl = req.file.path;
         }
 
-        const product = await Product.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            { new: true }
-        );
+        const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
         if (!product) {
             return res.status(404).json({ message: 'Produto não encontrado' });
@@ -118,14 +96,11 @@ export const updateProduct = async (req, res) => {
     }
 };
 
-
 // DELETE /api/products/:id (soft delete)
 export const deleteProduct = async (req, res) => {
-
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
         return res.status(400).json({ message: 'ID inválido' });
     }
-
     try {
         const product = await Product.findByIdAndUpdate(
             req.params.id,

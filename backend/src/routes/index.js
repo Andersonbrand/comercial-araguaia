@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { upload } from "../config/multer.js"
+import { upload } from "../utils/cloudinary.js"
 
 import UserController from "../app/controllers/UserController.js"
 import SessionController from "../app/controllers/SessionController.js"
@@ -24,9 +24,9 @@ routes.get("/admin", auth, isAdmin, (req, res) => {
 
 routes.get("/products", getAllProducts)
 routes.get("/products/:id", getProductById)
-routes.post("/products", upload.single("image"), createProduct)
-routes.put("/products/:id", upload.single("image"), updateProduct)
-routes.delete("/products/:id", deleteProduct)
+routes.post("/products", auth, isAdmin, upload.single("image"), createProduct)
+routes.put("/products/:id", auth, isAdmin, upload.single("image"), updateProduct)
+routes.delete("/products/:id", auth, isAdmin, deleteProduct)
 
 routes.post("/orders", createOrder)
 
