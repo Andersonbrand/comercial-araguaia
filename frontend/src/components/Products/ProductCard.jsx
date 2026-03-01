@@ -1,13 +1,20 @@
 import "./ProductCard.css";
 import { API_URL } from "../../config/api";
 
+function resolveImageUrl(imageUrl) {
+    if (!imageUrl) return '';
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        return imageUrl;
+    }
+    return `${API_URL}${imageUrl}`;
+}
+
 export default function ProductCard({ product, onAdd, onClick }) {
     return (
         <div className="product-card" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
-
             <div className="product-image">
                 <img
-                    src={`${API_URL}${product.imageUrl}`}
+                    src={resolveImageUrl(product.imageUrl)}
                     alt={product.name}
                 />
             </div>
