@@ -3,6 +3,7 @@ import './quote.css';
 import { useState } from 'react';
 import { sendQuote } from '../../services/api';
 import { useCart } from '../../context/CartContext';
+import { useState, useEffect, useRef } from 'react';
 
 const WHATSAPP_NUMBER = '5577981046133';
 
@@ -34,7 +35,12 @@ function validateDocument(value) {
 }
 
 export default function Quote() {
+
+    const [status, setStatus] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
     const { cartItems, clearCart } = useCart();
+    const [whatsappPending, setWhatsappPending] = useState(false);
+
 
     const [form, setForm] = useState({
         name: '',
@@ -44,8 +50,6 @@ export default function Quote() {
         document: '',
         message: '',
     });
-    const [status, setStatus] = useState(null);
-    const [submitting, setSubmitting] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -57,7 +61,26 @@ export default function Quote() {
         if (status) setStatus(null);
     };
 
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && whatsappPending) {
+                setWhatsappPending(false);
+                setStatus({ type: 'success', text: 'Orçamento enviado pelo WhatsApp com sucesso!' });
+                clearCart();
+                setForm({ name: '', email: '', phone: '', address: '', document: '', message: '' });
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, [whatsappPending, clearCart]);
+
     function validateForm() {
+        // ✅ NOVO: bloqueia envio sem itens no carrinho
+        if (cartItems.length === 0) {
+            setStatus({ type: 'error', text: 'Adicione pelo menos um item ao orçamento antes de enviar.' });
+            return false;
+        }
+
         if (!form.name.trim() || !form.email.trim() || !form.phone.trim() || !form.address.trim() || !form.document.trim() || !form.message.trim()) {
             setStatus({ type: 'error', text: 'Preencha todos os campos antes de enviar.' });
             return false;
@@ -197,7 +220,11 @@ export default function Quote() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => {
-                                    if (!validateForm()) e.preventDefault();
+                                    if (!validateForm()) {
+                                        e.preventDefault();
+                                        return;
+                                    }
+                                    setWhatsappPending(true);
                                 }}
                             >
                                 Enviar pelo WhatsApp

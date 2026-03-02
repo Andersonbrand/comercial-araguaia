@@ -1,6 +1,14 @@
 import "./cartItem.css";
 
 export default function CartItem({ item, onRemove, onUpdateQuantity }) {
+
+    const handleQtyInput = (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val) && val >= 1) {
+            onUpdateQuantity(item._id, val);
+        }
+    };
+
     return (
         <li className="cart-item">
             <div className="cart-item__image-wrap">
@@ -28,7 +36,14 @@ export default function CartItem({ item, onRemove, onUpdateQuantity }) {
                     >
                         −
                     </button>
-                    <span className="qty-value">{item.quantity}</span>
+                    <input
+                        className="qty-value qty-input"
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={handleQtyInput}
+                        aria-label="Quantidade"
+                    />
                     <button
                         className="qty-btn"
                         onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}

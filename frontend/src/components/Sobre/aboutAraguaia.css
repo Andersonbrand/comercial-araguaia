@@ -1,6 +1,7 @@
 .about-section {
     background: #39b9c3;
     padding: 80px 10%;
+    scroll-behavior: smooth;
 }
 
 .about-container {

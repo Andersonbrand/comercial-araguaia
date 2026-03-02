@@ -2,7 +2,9 @@ import nodemailer from 'nodemailer';
 
 function createTransporter() {
     return nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
             user: process.env.MAIL_USER,
             pass: process.env.MAIL_PASS,
@@ -47,5 +49,5 @@ export async function sendQuoteMail({ name, email, phone, address, document, mes
             '</div></div>',
     });
 
-    console.log('[MAIL] E-mail enviado com sucesso:', info.messageId);
+    reactTostify('E-mail enviado com sucesso:', info.messageId);
 }
