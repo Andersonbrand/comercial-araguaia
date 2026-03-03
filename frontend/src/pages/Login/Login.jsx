@@ -9,9 +9,9 @@ export default function Login() {
 
     const { login, token } = useAuth()
     const navigate = useNavigate()
-
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         if (token) {
@@ -21,6 +21,9 @@ export default function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault()
+
+        if (loading) return
+        setLoading(true)
 
         try {
             const { data } = await loginUser({ email, password })
@@ -74,7 +77,13 @@ export default function Login() {
                             onChange={e => setPassword(e.target.value)}
                         />
 
-                        <button className="auth-button" type="submit">Entrar</button>
+                        <button
+                            className="auth-button"
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading ? 'Entrando...' : 'Entrar'}
+                        </button>
 
                     </form>
 
