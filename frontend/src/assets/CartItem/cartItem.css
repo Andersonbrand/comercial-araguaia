@@ -88,7 +88,7 @@
 .cart-item__qty {
     display: flex;
     align-items: center;
-    border: 2px solid #002b80;
+    border: 1px solid #002b80;
     border-radius: 8px;
     overflow: hidden;
     background: #fff;
@@ -151,13 +151,11 @@
    ============================================= */
 .svg-icon {
     background: none;
-    border: 1px solid #fca5a5;
-    color: #ef4444;
+    color: rgb(239, 68, 68, 1);
     font-size: 1rem;
     cursor: pointer;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -167,7 +165,8 @@
 
 .svg-icon:hover {
     background: #fee2e2;
-    border-color: #ef4444;
+    border-color: rgb(239, 68, 68, 0.7);
+    transition: all 0.2s;
 }
 
 /* =============================================
